@@ -11,12 +11,15 @@ export type ResponseDropboxFile = {
   dropbox_url: string;
 };
 
+const DEFAULT_TIMEOUT_MS = 60_000;
+
 export async function uploadDropboxFile(permalink: string, file: DropboxFile) {
   const response = await request({
     method: "POST",
     accept: "json",
     url: Routes.create_dropbox_file_path(),
     data: { ...file, link_id: permalink },
+    timeoutMs: DEFAULT_TIMEOUT_MS,
   });
   if (!response.ok) throw new ResponseError();
   return cast<{ dropbox_file: ResponseDropboxFile }>(await response.json());
@@ -27,6 +30,7 @@ export async function cancelDropboxFileUpload(id: string) {
     method: "POST",
     accept: "json",
     url: Routes.cancel_dropbox_file_upload_path(id),
+    timeoutMs: DEFAULT_TIMEOUT_MS,
   });
   if (!response.ok) throw new ResponseError();
   const json = cast<{ success: false } | { dropbox_file: ResponseDropboxFile; success: true }>(await response.json());
@@ -39,6 +43,7 @@ export async function fetchDropboxFiles(permalink: string) {
     method: "GET",
     accept: "json",
     url: Routes.dropbox_files_path({ link_id: permalink }),
+    timeoutMs: DEFAULT_TIMEOUT_MS,
   });
   if (!response.ok) throw new ResponseError();
   return cast<{ dropbox_files: ResponseDropboxFile[] }>(await response.json());
